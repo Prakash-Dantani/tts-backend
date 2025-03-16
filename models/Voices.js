@@ -10,6 +10,6 @@ const voiceSchema = new mongoose.Schema({
 
 const Voices = mongoose.model("Voices", voiceSchema);
 
-export default Voices;
+module.exports.Voices = Voices;
 
 
