@@ -4,7 +4,7 @@ const tts = require('../voice-rss-tts/index.js');
 const textToSpeech = (req, res) => {
     try {
         tts.speech({
-            key: 'c11c660046c947c6b435567697b95b50',
+            key: process.env.TTS_KEY,
             hl: req.body.language_code,
             v: req.body.voice_name,
             src: req.body.text_to_convert,
