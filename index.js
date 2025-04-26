@@ -7,6 +7,9 @@ const passport = require("passport");
 const session = require("express-session");
 
 require("./controllers/passport.js"); // config below
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // your client ID
 
 
 const app = express();
@@ -23,14 +26,17 @@ app.use(express.json());
 
 //code for Google Auth Login
 app.use(session({
-    secret: "secret", resave: false, saveUninitialized: true,
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
     cookie: {
-        // expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 1 day from now
-        // maxAge: 1000 * 60 * 60 * 24 // Set the session to expire in 24 hours
-        maxAge: 1000 * 60 * 60 * 24, httpOnly: true, secure: false  // Set 'secure: true' for HTTPS
-
+        maxAge: 1000 * 60 * 60 * 24,
+        httpOnly: true,
+        secure: false,  // Use only on HTTPS
+        sameSite: 'lax', // Allow cross-origin cookies
     }
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -49,9 +55,46 @@ app.get('/auth/google/callback',
     }
 );
 
+// Add this POST route:
+app.post('/auth/google', async (req, res) => {
+    const { token } = req.body;
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID, // your client id
+        });
+
+        const payload = ticket.getPayload();
+        console.log('Google Payload:', payload);
+
+        req.session.user = {
+            id: payload.sub,
+            name: payload.name,
+            email: payload.email,
+        };
+
+        res.status(200).json(req.session.user);
+    } catch (error) {
+        console.error('Error verifying Google token', error);
+        res.status(401).json({ message: 'Invalid token' });
+    }
+});
+
+
+app.get('/api/me', (req, res) => {
+    if (req.isAuthenticated()) {
+        return res.json({ user: req.user });
+    } else {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+});
+
+
+
+
 app.get('/logout', (req, res) => {
     req.logout(() => {
-        res.redirect('/');
+        return res.json({ message: "Successfully Logged Out." });
     });
 });
 
