@@ -15,7 +15,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // your client ID
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONT_APP_URI,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // Allow cookies to be sent
@@ -51,7 +51,7 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
         // Successful login
-        res.redirect('http://localhost:5173/'); // frontend URL
+        res.redirect(process.env.FRONT_APP_URI); // frontend URL
     }
 );
 
