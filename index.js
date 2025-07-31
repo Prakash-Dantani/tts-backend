@@ -124,4 +124,6 @@ mongoose.connect(uri, {
 
 
 const port = process.env.port || 3000;
-app.listen(port, () => console.log(`App Listening on Port http://localhost:${port}`))
+module.exports.handler = serverless(app);
+
+// app.listen(port, () => console.log(`App Listening on Port http://localhost:${port}`))
