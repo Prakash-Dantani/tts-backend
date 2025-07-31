@@ -42,6 +42,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 app.use("/api", routes);
 
 app.get('/auth/google',
