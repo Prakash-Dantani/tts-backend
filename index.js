@@ -14,8 +14,24 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // your client ID
 
 const app = express();
 
+const allowedOrigins = [
+    'http://localhost:5173', // local dev
+    'https://text-to-speech-frontend-lywk.onrender.com', // deployed frontend
+];
+
+
 app.use(cors({
-    origin: process.env.FRONT_APP_URI,
+    // origin: process.env.FRONT_APP_URI,
+    origin: function (origin, callback) {
+        // allow requests with no origin (like curl or Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        } else {
+            return callback(new Error('Not allowed by CORS'));
+        }
+    },
+
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // Allow cookies to be sent
@@ -42,11 +58,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
+app.get('/', (req, res) => {
+    res.send('API is running...');
+});
+
 app.use("/api", routes);
 
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
+
+
 
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),

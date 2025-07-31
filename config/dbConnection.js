@@ -1,10 +1,5 @@
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://dantaniprakash08:WGiYpaQtiCpGPdp9@text-to-speech.bh9ocng.mongodb.net/?retryWrites=true&w=majority&appName=text-to-speech";
-// MONGO_URI=mongodb://localhost:27017/tts 
-
-// mongorestore--uri "mongodb+srv://dantaniprakash08:WGiYpaQtiCpGPdp9@text-to-speech.bh9ocng.mongodb.net"./ dump / tts
-
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
