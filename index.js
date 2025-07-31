@@ -100,12 +100,27 @@ app.get('/logout', (req, res) => {
 });
 
 
-mongoose.connect(process.env.MONGO_URI, {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
+const username = process.env.MONGODB_USERNAME;
+const password = process.env.MONGODB_PASSWORD;
+const cluster = process.env.MONGODB_CLUSTER;
+const database = process.env.MONGODB_DATABASE;
+
+const uri = `mongodb+srv://${username}:${password}@${cluster}/${database}?retryWrites=true&w=majority`;  // For Live Database
+mongoose.connect(uri, {
+    //useNewUrlParser: true, useUnifiedTopology: true
 })
-    .then(() => console.log('Database Successfully connected.'))
-    .catch((error) => console.error('Database Not connected : ', error));
+    .then(() => console.log("DB Connected"))
+    .catch(err => {
+        console.error("Connection error", err);
+    });
+
+
+// mongoose.connect(process.env.MONGO_URI, {
+//     // useNewUrlParser: true,
+//     // useUnifiedTopology: true,
+// })
+//     .then(() => console.log('Database Successfully connected.'))
+//     .catch((error) => console.error('Database Not connected : ', error));
 
 
 const port = process.env.port || 3000;
