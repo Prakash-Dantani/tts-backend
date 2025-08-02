@@ -14,7 +14,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
+    callbackURL: "http://tts-backend-ql5t.onrender.com/auth/google/callback"
 },
     async (accessToken, refreshToken, profile, done) => {
         let user = await User.findOne({ googleId: profile.id });
