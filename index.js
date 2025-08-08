@@ -46,23 +46,49 @@ app.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: true,
+    rolling: false, // refresh expiration on every request
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24,
+        maxAge: 1000 * 60 * 60, // 1 Hour
         httpOnly: true,
-        secure: false,  // Use only on HTTPS
-        sameSite: 'lax', // Allow cross-origin cookies
+        secure: false,
+        sameSite: 'lax',
     }
 }));
 
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+function ensureAuth(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.status(401).json({ message: 'Session expired' });
+}
 
 
 app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
-app.use("/api", routes);
+app.use("/api", ensureAuth, routes);
+
+
+app.get('/api/me', (req, res) => {
+    // Disable caching for this endpoint
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+
+    if (req.isAuthenticated()) {
+        return res.status(200).json({ user: req.user });
+    } else {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+});
+
+
 
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -102,16 +128,6 @@ app.post('/auth/google', async (req, res) => {
         res.status(401).json({ message: 'Invalid token' });
     }
 });
-
-
-app.get('/api/me', (req, res) => {
-    if (req.isAuthenticated()) {
-        return res.json({ user: req.user });
-    } else {
-        return res.status(401).json({ message: "Unauthorized" });
-    }
-});
-
 
 
 
