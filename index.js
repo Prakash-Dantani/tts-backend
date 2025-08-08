@@ -100,7 +100,7 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     (req, res) => {
         // Successful login
-        res.redirect(process.env.FRONT_APP_URI); // frontend URL
+        res.redirect(`${process.env.FRONT_APP_URI}/dashboard`); // frontend URL
     }
 );
 
